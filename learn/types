@@ -1,0 +1,22 @@
+lstc offers various types OTB (out-the-box), here is just a part of them
+Map (slow lookup, kv storage)
+UMap (unordered map, fast, same kv)
+syntax for map:
+let: (map type)<type -> type> name = {a: b, c:d, e : f}; /-/ aka any spacing
+Vector - dynamic array
+Set
+int -
+subtypes :
+u(8/16/32/64)
+i(8/16/32/64)
+if you use int, you actually make i32, to use another type, just use it directly
+float:
+(same as with int)
+string - automatically managed string
+char
+double - virtualized 128 bit /-/ idk, can be discarded or implemented way later (too hard)
+bool
+none (like void in C)
+
+arrays:
+let: type name[n]

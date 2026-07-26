@@ -1,0 +1,24 @@
+In lstc, you can write inline asm, which is a special kind of asm, managed by the compiler, its platform independend
+and has special syntax, you can also reference variables and so on in it, its not compiler managed, just to give you
+freedom to do some exotic things, also it handles itself extending and so on, you just do what you need
+
+syntax example:
+let: int q = 567;
+core::asm! {
+add(&q, 7)
+};
+available ops
+
+move
+sub
+add
+syscall
+mul
+imul
+and so on
+
+asm -- collect
+core::asm.collect collects variables into registers, and then passes to a syscall, its a short way to write long syscalls
+syntax:
+core::asm.collect(SYSCALL, args...)
+it also works in raw asm blocks

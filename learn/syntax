@@ -1,0 +1,25 @@
+/-/ comment style 1, full line
+/! comment style 2, the comment is just in the bounds of delimeters !/
+
+variable declaration:
+explicit:
+let: type name(= value);
+implicit:
+name = value; /-/ you cannot initialize it without value
+
+normal functions:
+
+fn -> return_type name(arg1: type1, arg2: type2) {
+    /-/ code
+}
+
+to call it you do
+
+name(args);
+
+just like in any other language
+
+function declaration:
+math (math and bitwise only (always inline functions)):
+fn: in_type -> out_type: name(arg1, arg2, ...) = {/!Your ops here (automatically returned)!/}
+use just like normal functions

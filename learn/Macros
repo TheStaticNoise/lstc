@@ -1,0 +1,19 @@
+What are macros? In lstc, macros are functions, implemented inside the compiler, they are always available without libraries,
+they are always inline.
+example:
+^section.macro(args);
+
+in future, there will be:
+Sections:
+Tokenizers /-/ most will tokenize by map, but some will be able to create vocabs themselves
+Parsers /-/ parses text
+Generators /-/ generates text based on tokens, automatically
+IO /-/ handles input and output in console/files
+file /-/ advanced file manipulation
+http /-/ http communication
+sockets /-/ raw connections
+
+btw, macros can be straight assembly, not just lstc code
+
+tips:
+if the macros are big & frequently used, then consider wrapping it into a function call so the binary doesn't grow too much
