@@ -20,28 +20,28 @@ LSTC_PAGER_context LSTC_PAGER_init(L__U64 chunk_size, L__U16 size) {
     return e;
 }
 
-// L__BOOL LSTC_PAGER_grow(LSTC_PAGER_context* e, L__U64 n) {
-//     void** tmp;
-//     if (e->max_pages < e->pages + n) {
-//         tmp = LSTC_mmap(0, (e->pages + n + LSTC_PAGER_EXTRACAP) * sizeof(void*), 3, 34, -1, 0);
-//         if (tmp >= -4096) {
-//             return L__FALSE;
-//         }
-//     }
-//     for (int i = 0; i < e->chunks_inited; i++) {
-//         tmp[i] = e->data[i];
-//     }
-//     L__U64 ea = n;
-//     while (ea != 0) {
-//         e->data[e->chunks_inited] = LSTC_mmap(0, e->chunk, 3, 34, -1, 0);
-//         if (e->data[e->chunks_inited] >= -4096) {
-//             return L__FALSE;
-//         }
-//         e->chunks_inited++;
-//         ea--;
-//     }
-//     return L__TRUE;
-// }
+L__BOOL LSTC_PAGER_grow(LSTC_PAGER_context* e, L__U64 n) {
+    void** tmp;
+    if (e->max_pages < e->pages + n) {
+        tmp = LSTC_mmap(0, (e->pages + n + LSTC_PAGER_EXTRACAP) * sizeof(void*), 3, 34, -1, 0);
+        if (tmp >= -4096) {
+            return L__FALSE;
+        }
+    }
+    for (int i = 0; i < e->chunks_inited; i++) {
+        tmp[i] = e->data[i];
+    }
+    L__U64 ea = n;
+    while (ea != 0) {
+        e->data[e->chunks_inited] = LSTC_mmap(0, e->chunk, 3, 34, -1, 0);
+        if (e->data[e->chunks_inited] >= -4096) {
+            return L__FALSE;
+        }
+        e->chunks_inited++;
+        ea--;
+    }
+    return L__TRUE;
+}
 
 L__BOOL LSTC_PAGER_mun(LSTC_PAGER_context* e) {
     while (e->chunks_inited != 0) {

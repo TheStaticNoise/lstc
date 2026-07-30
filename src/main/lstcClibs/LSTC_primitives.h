@@ -5,8 +5,11 @@
 #define L__TRUE  1
 #define L__FALSE 0
 
+#if '\n' != 0x0A
+#error "stinky EBCDIC mainframes are not supported. ASCII required bitch!" // EBCDICK
+#endif
 
-typedef char       L__S8;
+typedef signed char L__S8;
 typedef short int  L__S16;
 typedef int        L__S32;
 typedef long long  L__S64;
@@ -22,7 +25,7 @@ typedef unsigned short int  L__U16;
 typedef unsigned int        L__U32;
 typedef unsigned long long  L__U64;
 
-static inline L__U32 LSTCPr_fnv1a(const char *buf, L__U32 len) {
+static inline L__U32 LSTCPr_fnv1a(const L__U8 *buf, L__U32 len) {
 	L__U32 out = 0x811c9dc5;
 
 	for (L__U32 i = 0; i < len; i++)
@@ -31,7 +34,7 @@ static inline L__U32 LSTCPr_fnv1a(const char *buf, L__U32 len) {
 	return out;
 }
 
-static inline L__BOOL LSTCPr_compN_mem(const char* b1, const char* b2, L__U64 n) {
+static inline L__BOOL LSTCPr_compN_mem(const L__U8* b1, const L__U8* b2, L__U64 n) {
     for (L__U64 e = 0; e < n; e++) {
         if (*b1 == *b2) {
             b1++, b2++;

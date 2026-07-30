@@ -4,6 +4,7 @@
 
 .section .text
 _start:
+    mov rdi, rsp
     and rsp, 0xFFFFFFFFFFFFFFF0
     call main
 

@@ -1,6 +1,6 @@
 #on an incredible journey to shave off stdlib bloat
 .intel_syntax noprefix
-.global LSTC_write, LSTC_read, LSTC_open, LSTC_close
+.global LSTC_write, LSTC_read, LSTC_open, LSTC_close, LSTC_lseek
 ## Quick guide, system-V abi does this:
 # arg1 = rdi
 # arg2 = rsi
@@ -29,5 +29,10 @@ LSTC_open:
 #int fd -> int 0 success || errno (negative val)
 LSTC_close:
     mov eax, 3
+    syscall
+    ret
+#int fd, size_t offset, uint whence -> size_t
+LSTC_lseek:
+    mov eax, 8
     syscall
     ret
