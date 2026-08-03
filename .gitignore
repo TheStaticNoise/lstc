@@ -5,6 +5,7 @@
 *.slo
 *.lo
 *.o
+*.O
 *.obj
 
 # Precompiled Headers
@@ -45,13 +46,6 @@ Build/
 build-*/
 bin/
 
-# CMake generated files
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
-install_manifest.txt
-compile_commands.json
 
 # Temporary files
 *.tmp
@@ -68,3 +62,6 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+#valgrind
+vgcore.*

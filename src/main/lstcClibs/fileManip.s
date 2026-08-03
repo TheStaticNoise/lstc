@@ -1,6 +1,6 @@
 #on an incredible journey to shave off stdlib bloat
 .intel_syntax noprefix
-.global LSTC_write, LSTC_read, LSTC_open, LSTC_close, LSTC_lseek
+.global LSTC_write, LSTC_read, LSTC_open, LSTC_close, LSTC_lseek, LSTC_create
 ## Quick guide, system-V abi does this:
 # arg1 = rdi
 # arg2 = rsi
@@ -21,9 +21,10 @@ LSTC_read:
     xor eax, eax # optimization
     syscall
     ret
-# imut char* name, flags, mode -> return int fd (rax) || errno (negative val)
+# int directory_fd, imut char* name, flags, mode -> return int fd (rax) || errno (negative val)
 LSTC_open:
-    mov eax, 2
+    mov eax, 257
+    mov r10, rcx
     syscall
     ret
 #int fd -> int 0 success || errno (negative val)
@@ -34,5 +35,10 @@ LSTC_close:
 #int fd, size_t offset, uint whence -> size_t
 LSTC_lseek:
     mov eax, 8
+    syscall
+    ret
+#imut char* name, mode -> int fd
+LSTC_create:
+    mov eax, 85
     syscall
     ret

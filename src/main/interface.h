@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <optional>
 
 namespace lstc {
     namespace FileManag {
@@ -28,6 +29,7 @@ namespace lstc {
         };
         struct part_segs {
             std::vector<part_unit> obj;
+            unsigned char error;
         };
 
         struct path_expanded {
@@ -36,6 +38,6 @@ namespace lstc {
         };
 
         part_segs path_dissect(std::string path); // back bone of lstc file manager path expansions
-        path_expanded path_expand(std::string path, void* MAPENV);
+        path_expanded path_expand(std::string path, std::optional<std::unordered_map<std::string, std::string>> MAPENV);
         void print_partSegs(part_segs& rd);
 }}
