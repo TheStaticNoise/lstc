@@ -4,8 +4,8 @@ deps:
 	gcc -c exit.s      -o bin/exit.o
 	gcc -c mmap.s      -o bin/mmap.o
 	gcc -c start.s     -o bin/start.o
-	gcc -c lenArgs.s   -o bin/lenArgs.o
-	ld -r bin/filem.o bin/exit.o bin/mmap.o bin/lenArgs.o -o bin/LSTC_Clibs.o
+	gcc -c lenArgs.s   -o bin/variadic.o
+	ld -r bin/filem.o bin/exit.o bin/mmap.o bin/variadic.o -o bin/LSTC_Clibs.o
 
 
 comp: deps

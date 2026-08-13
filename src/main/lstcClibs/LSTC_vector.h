@@ -16,7 +16,7 @@ typedef struct {
 } LSTC_vec;
 
 
-LSTC_vec LSTC_VEC_init(L__U64 n, L__U64 mmaps, L__U64 initpgc) {
+static LSTC_vec LSTC_VEC_init(L__U64 n, L__U64 mmaps, L__U64 initpgc) {
     LSTC_vec e = {.err = 0, .pgcount = 0, .size = n, .curr = 0};
     void** t = LSTC_mmap(0, initpgc * sizeof(void*), 3, 34, -1, 0);
     if (t >= -4096LL) {e.err = 1; return e;}
@@ -27,5 +27,9 @@ LSTC_vec LSTC_VEC_init(L__U64 n, L__U64 mmaps, L__U64 initpgc) {
         if (r >= -4096LL) {e.err = 1; return e;} // love abusing 2's compliment
         t[i] = r; }
     return e;}
+
+static inline void LSTC_VEC_destruct(LSTC_vec vecc) {
+    for (int i = 0; i < vecc.pgcount; i++) LSTC_munmap(vecc.storage[i], vecc.MMAP_sz);
+}
 
 #endif

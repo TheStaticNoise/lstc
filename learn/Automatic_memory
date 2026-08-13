@@ -1,4 +1,4 @@
-in lstc, you cam don't worry about memory managment, the compiler will help you!
+in lstc, you can just not worry about memory managment, the compiler will do most of it for you
 by std, everything is on stack, but you can do this
 
 let: string q [heap] = "Hello, world!\n";

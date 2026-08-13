@@ -1,5 +1,7 @@
 #ifndef LSTC_IO
 #define LSTC_IO
+
+#include "LSTC_pager.h"
 #include "LSTC_primitives.h"
 
 #define LSTC_OPEN_MODE_RWE_R 0755
@@ -27,6 +29,15 @@ typedef struct {
     int permissions;
 } LSTC_IO_streamDesc;
 
+typedef struct {
+    char* buffer_page; // support only 1 buffer page
+    L__U64 index;
+    L__U64 outsz;
+    L__U64 chunk;
+    int flush_dest; // !
+    // buffer page, index,
+} LSTC_IO_BUFFER_Ctx;
+
 extern L__S64 LSTC_write(int fd, const char* buf, L__U64 ctn);
 extern L__S64 LSTC_read(int fd, char* buf, L__U64 ctn);
 extern L__S64 LSTC_open(int dirfd, const char* name, int flags, LSTC_LinuxUMode_t mode) ;
@@ -51,4 +62,43 @@ static L__BOOL LSTC_print(const char* o, int fd) { // -1 if std
     }
     return L__TRUE;
 }
+
+static L__BOOL LSTC_printEXP(const char* o, int fd, L__U64 sz) { // -1 if std
+    int out = 1;
+    if (fd != -1) {
+        out = fd;
+    }
+    for (L__S64 i = 0, e; i < sz;) {
+        e = LSTC_write(out, &o[i], sz - i);
+        if (e < 0) {
+            return L__FALSE;
+        }
+        i += e;
+    }
+    return L__TRUE;
+}
+
+static inline LSTC_IO_BUFFER_Ctx LSTC_create_ctx(int fd, L__U64 sz) {
+    LSTC_IO_BUFFER_Ctx e = {
+        .buffer_page = 0,
+        .index = 0,
+        .outsz = 0,
+        .chunk = sz == -1 ? 4096 : sz,
+        .flush_dest = fd,
+    };
+    char* temp = (char*) LSTC_mmap(0, e.chunk, 3, 34, -1, 0);
+
+    e.buffer_page = temp > 4096ull ? 0 : temp;
+
+    return e;
+}
+
+static inline void LSTC_flushctx(LSTC_IO_BUFFER_Ctx* ctx) {
+    LSTC_printEXP(ctx->buffer_page, ctx->flush_dest, ctx->outsz);
+    ctx->outsz = 0;
+    ctx->index = 0;
+}
+
+static L__BOOL LSTC_printb(const char* o, LSTC_IO_BUFFER_Ctx ctx);
+
 #endif

@@ -44,6 +44,12 @@ static inline L__U32 LSTCPr_fnv1a(const L__U8 *buf, L__U32 len) {
 
 	return out;
 }
+static inline L__U32 LSTCPr_fnv1aF(const L__U8 *buffer) {
+    L__U64 i = 0;
+    for (; buffer[i] != '\0'; i++);
+	return LSTCPr_fnv1a(buffer, i);
+}
+
 
 static inline L__BOOL LSTCPr_compN_mem(const L__U8* b1, const L__U8* b2, L__U64 n) {
     for (L__U64 e = 0; e < n; e++) {
