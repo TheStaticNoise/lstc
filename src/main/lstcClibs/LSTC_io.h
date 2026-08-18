@@ -86,9 +86,9 @@ static inline LSTC_IO_BUFFER_Ctx LSTC_create_ctx(int fd, L__U64 sz) {
         .chunk = sz == -1 ? 4096 : sz,
         .flush_dest = fd,
     };
-    char* temp = (char*) LSTC_mmap(0, e.chunk, 3, 34, -1, 0);
+    char* temp = (char*) LSTC_simplify_mmap_private(e.chunk);
 
-    e.buffer_page = temp > 4096ull ? 0 : temp;
+    e.buffer_page = temp == 0 ? 0 : temp;
 
     return e;
 }
@@ -99,6 +99,30 @@ static inline void LSTC_flushctx(LSTC_IO_BUFFER_Ctx* ctx) {
     ctx->index = 0;
 }
 
-static L__BOOL LSTC_printb(const char* o, LSTC_IO_BUFFER_Ctx ctx);
+static inline char LSTC_destructctx(LSTC_IO_BUFFER_Ctx* ctx) {
+    void* e = LSTC_munmap(ctx->buffer_page, ctx->chunk);
+    if ((L__64) e <= (L__64) -4096) {
+        ctx->chunk = 0;
+        ctx->flush_dest = 0;
+        ctx->index = 0;
+        ctx->outsz = 0;
+    }
+    return (L__64) e >= (L__64) -4096 ? 1 : 0;
+}
+
+static void LSTC_printb(const char* o, LSTC_IO_BUFFER_Ctx* ctx) {
+    int LSTC_Iterator_I = 0;
+    while (o[LSTC_Iterator_I++] != '\0');
+    /// points to null terminator
+    LSTC_Iterator_I--;
+    if (ctx->index + LSTC_Iterator_I >= ctx->chunk) { // chunk contains index 1 size
+        LSTC_flushctx(ctx);
+        LSTC_printEXP(o, ctx->flush_dest, LSTC_Iterator_I);
+    } else {
+        LSTC_memcpy(o, &ctx->buffer_page[ctx->index], LSTC_Iterator_I);
+        ctx->index += LSTC_Iterator_I;
+        ctx->outsz += LSTC_Iterator_I;
+    }
+}
 
 #endif

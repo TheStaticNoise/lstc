@@ -31,6 +31,7 @@ L__BOOL LSTC_PAGER_grow(LSTC_PAGER_context* e, L__U64 n) {
     for (int i = 0; i < e->chunks_inited; i++) {
         tmp[i] = e->data[i];
     }
+    e->data = tmp;
     L__U64 ea = n;
     while (ea != 0) {
         e->data[e->chunks_inited] = LSTC_mmap(0, e->chunk, 3, 34, -1, 0);

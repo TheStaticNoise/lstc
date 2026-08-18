@@ -4,6 +4,7 @@
 // NASM syntax needed
 
 /* (this also works as a fucking nasm guide)
+ * at begining use ```format ELF64```
  sections:
   syntax: SECTION [NAME]
   : .data
@@ -65,7 +66,8 @@
     data:
         .data:
             string:
-                msg db 'STRING'(, num or another string)
+                name db 'STRING'(, num or another string)
+                example: msg db ''
  */
 
 

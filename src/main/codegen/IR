@@ -1,0 +1,22 @@
+codepred >>
+
+def func main write
+entry main
+args main none
+args write deref none u64
+
+
+code write
+scope_start
+    register_set RAX 1
+    register_set RDX RSI
+    register_set RSI RDI
+    register_set RDI 1
+    syscall
+scope_end
+
+code main
+scope_start
+    call write literal char "Hello, world!" 13
+    syscall 60 0
+scope_end

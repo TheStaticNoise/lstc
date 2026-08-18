@@ -65,3 +65,11 @@ Testing/
 
 #valgrind
 vgcore.*
+#asm
+.asm-*
+*.asm
+#app
+app*
+*app
+*_test*
+todo

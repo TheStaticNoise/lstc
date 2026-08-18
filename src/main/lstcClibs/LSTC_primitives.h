@@ -1,10 +1,12 @@
 #ifndef LSTC_PRIMITIVES
 #define LSTC_PRIMITIVES
 
-
 #if '\n' != 0x0A
 #error "stinky EBCDIC mainframes are not supported. ASCII required bitch!" // EBCDICK
+// deleting this check won't help, the entire user facing architecture assumes ASCII
+// P.S. that's like removing the warning sticker "Toxic!" and thinking its now safe
 #endif
+
 
 typedef signed char L__S8;
 typedef short int  L__S16;
@@ -26,6 +28,16 @@ typedef unsigned long long  L__U64;
 #define L__TRUE  1
 #define L__FALSE 0
 #define L__NULL 0
+
+#define L__8 L__U8
+#define L__16 L__U16
+#define L__32 L__U32
+#define L__64 L__U64
+
+#define LSTC_IS_LETTER(e) (((e) >= 'A' && (e) <= 'Z') || ((e) >= 'a' && (e) <= 'z'))
+#define LSTC_SWITCH_CASE(e) do { if ASCII_IS_LETTER(e) { e ^= 0x20; } } while (0)
+
+#define LSTC_ABS(exp) (((exp) < 0) ? -(exp) : (exp))
 
 typedef enum {
     LSTC_INT,
@@ -51,8 +63,8 @@ static inline L__U32 LSTCPr_fnv1aF(const L__U8 *buffer) {
 }
 
 
-static inline L__BOOL LSTCPr_compN_mem(const L__U8* b1, const L__U8* b2, L__U64 n) {
-    for (L__U64 e = 0; e < n; e++) {
+static inline L__BOOL LSTCPr_compN_mem(const L__8* b1, const L__8* b2, L__64 n) {
+    for (L__64 e = 0; e < n; e++) {
         if (*b1 == *b2) {
             b1++, b2++;
         } else {
@@ -62,43 +74,10 @@ static inline L__BOOL LSTCPr_compN_mem(const L__U8* b1, const L__U8* b2, L__U64 
     return L__TRUE;
 }
 
-static inline L__BOOL LSTCRr_CompNf(char *b1, char *b2, L__U64 n) {
-    L__U64 *acc = (L__U64*)b1, *acc2 = (L__U64*)b2;
-    int indx = 0;
-    for (L__U64 e = n; e != 0;) {
-        if (e >= 8) {
-            if (acc[indx] == acc2[indx]) { // NO Need for cast here
-                e -= 8;
-                indx+=8;
-                continue;
-            }
-            return L__FALSE;
-        }
-        if (e >= 4) {
-            if ((L__U32) acc[indx] == (L__U32) acc2[indx]) {
-                e -= 4;
-                indx+= 4;
-                continue;
-            }
-            return L__FALSE;
-        }
-        if (e >= 2) {
-            if ((L__U16) acc[indx] == (L__U16) acc2[indx]) {
-                e -= 2;
-                continue;
-            }
-            return L__FALSE;
-        }
-        if (e >= 1) {
-            if ((L__U8) *b1 == (L__U8) *b2) {
-                b1 += 1; b2 += 1;
-                e -= 1;
-                continue;
-            }
-            return L__FALSE;
-        }
+static inline void LSTC_memcpy(L__8* b1, L__8* b2, L__64 n) {
+    for (L__64 i = 0; i < n; i++) {
+        b2[i] = b1[i];
     }
-    return L__TRUE;
 }
 
 #endif

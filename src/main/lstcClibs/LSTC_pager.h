@@ -24,9 +24,18 @@ typedef struct {
 // provides you an good starting allocation and shit
 [[nodiscard]]
 void* LSTC_mmap(void* address, L__U64 len, int p, int fl, int fd, L__U64 off);
+[[nodiscard]]
 void* LSTC_munmap(void* address, L__U64 len); // both are in MMAP.s
+[[nodiscard]]
 LSTC_PAGER_context LSTC_PAGER_init(L__U64 chunk_size, L__U16 size);
+[[nodiscard]]
 L__BOOL LSTC_PAGER_mun(LSTC_PAGER_context* e);
+[[nodiscard]]
+static inline void* LSTC_simplify_mmap_private(L__U64 size) {
+    void* xd = LSTC_mmap(0, size, LSTC_PAGER_MMAP_WRITE | LSTC_PAGER_MMAP_READ, 34, -1, 0);
+    return (L__U64) xd > (L__U64) -4096 ? 0 : xd;
+}
+
 #define LSTC_MPINIT(chunk_size, init_size) LSTC_PAGER_init(chunk_size, init_size)
 #define LSTC_MPKILL(context) LSTC_PAGER_mun(context)
 #endif
