@@ -41,16 +41,22 @@ static inline int LSTC_itoa(int i, char* buffer, L__U64 bufN) {
     return len;
 };
 
-static inline L__S32 LSTC_atoi(char* NTbuffer /* null terminated buffer */) {
-    L__S32 samsung = 0, e = 0;
-    while (NTbuffer[e] && NTbuffer[e++] != ' ');
-    L__S32 nokia = NTbuffer[e++] == '-' ? -1 : 1;
-    samsung += NTbuffer[e] >= '0' && NTbuffer[e] <= '9' ? NTbuffer[e++] - '0' : 0;
-    if (samsung == 0) {
-        return 0;
+static inline L__S32 LSTC_atoi(char* NTbuffer) {
+    L__S32 e = 0;
+    while (NTbuffer[e] == ' ' || NTbuffer[e] == '\t') {
+        e++;
     }
-    for (int i = e, symbol = NTbuffer[i]; symbol >= '0' && symbol <= '9'; i++) {
-        samsung = samsung * 10 + (symbol - '0');
+    L__S32 nokia = 1;
+    if (NTbuffer[e] == '-') {
+        nokia = -1;
+        e++;
+    } else if (NTbuffer[e] == '+') {
+        e++;
+    }
+    L__S32 samsung = 0;
+    while (NTbuffer[e] >= '0' && NTbuffer[e] <= '9') {
+        samsung = samsung * 10 + (NTbuffer[e] - '0');
+        e++;
     }
     return samsung * nokia;
 }
