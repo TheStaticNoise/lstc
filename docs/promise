@@ -1,0 +1,8 @@
+/docs/promise
+
+upon first version (lstc 1.0) lstc may never remove features, deprecated or not,
+once a feature is released, it must be accessible, in any future version in lstc,
+no matter if its implementation is rewritten, it must keep the same behavior, returns, and syntax.
+"Once a feature is released, someone already depends on it, and deleting it will break their app"
+
+definition of deprecated in context of lstc: Discouraged, older way to do a thing.

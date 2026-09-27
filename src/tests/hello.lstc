@@ -1,0 +1,23 @@
+#entry entry_fn
+fn entry_fn() -> none {
+    print("Hello, world!");
+    core::asm.syscall(60, 0);
+}
+
+fn print(text: char*) -> i64 {
+    let: i64 strlen = 0;
+    let: i64 indx = 0;
+    let: i64 temp; /-/ comment
+    while (text[strlen++]);
+    strlen--;
+
+    while (strlen) {
+        temp = core::asm.syscall(1, 1, text + indx, strlen);
+        if (temp <= 0) return temp;
+        indx += temp;
+        strlen -= temp;
+    }
+    return 0;
+}
+
+

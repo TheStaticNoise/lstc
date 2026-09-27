@@ -1,9 +1,0 @@
-path_dissect(string) return part segs:
-call (C++): lstc::fileManag::path_dissect("TEXT");
-path_expand(string, unordered map string -> string) return path_expanded (path + error (0 if res))
-call (C++):
-lstc::fileManag::path_expand("TEXT", null/nullptr/unordered map)
-
-Warning:
-    unsafe! anyone passing integers, strings, sets, his own relationship history (aka 1, in kindergarden but then never again), instead of null, nullptr,
-    or unordered map will be executed at sunrise

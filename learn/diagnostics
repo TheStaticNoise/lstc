@@ -1,0 +1,11 @@
+- Warnings
+
+LSTC-W0
+
+- Errors
+
+LSTC-E0 - not implemented
+LSTC-E1 - illegal operation // includes returns
+LSTC-E2 - Unableanyw to compile (garbage input)
+LSTC-E3 - Illegal param
+LSTC-E4 - even compiler can't tell if its a joke or not

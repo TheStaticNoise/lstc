@@ -17,6 +17,6 @@ scope_end
 
 code main
 scope_start
-    call write literal char "Hello, world!" 13
+    call write identity_str "Hello, world!" identity_int 13
     syscall 60 0
 scope_end

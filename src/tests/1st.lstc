@@ -1,0 +1,3 @@
+fn -> int xd(lstc: int) {
+    core::io.print();
+}

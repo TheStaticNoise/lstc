@@ -1,0 +1,19 @@
+/docs/core
+
+core, or, core:: namespace, is a compiler provided interface to change compiler behavior, get constants, edit parameters,
+and interact with compiler overall, core contains different things, like compiler defined variables, global data, and so on,
+only some parameters will have the permission of being overwritten, every file gets its own private copy so you can implement your
+own core behavior, but now in lstc.
+
+core::asm
+
+.syscall(args) -
+Syscall using params, first param is the syscall number.
+core::asm! {
+    /-/ platform independent asm
+    add(2foo, *bar);
+    mov(sys(0), 60);
+    mov(sys(1), 0);
+    syscall(); /-/ asm blocks are never optimized by the compiler
+    /-/ but, it can be "transformed" to match functionality.
+}

@@ -1,0 +1,8 @@
+/docs/self
+
+LSTC is a compiled language with the goal of making programming (system or software) easier
+(primarily because of some poorly implemented libraries, strange API, too many external dependencies
+or complex memory management) The name comes from one of my (currently private) projects called L$script,
+its a bytecode-based language (similar to java), yet, I thought "why not make it compiled?",
+and focused on this project, LSTC - L$Script type compiled (or "lets skip the C" on a good day, on an
+even better day "LSTC surpasses the C")

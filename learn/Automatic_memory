@@ -1,7 +1,7 @@
 in lstc, you can just not worry about memory managment, the compiler will do most of it for you
 by std, everything is on stack, but you can do this
 
-let: string q [heap] = "Hello, world!\n";
+let: int[10] [heap] q;
 
 and it will be reallocated and freed by the compiler, you don't have to worry, or you can put it on stack,
 and every dynamic variable will have its own stack pointer in data, oh, also, for heap, it tracks the ownership itself,

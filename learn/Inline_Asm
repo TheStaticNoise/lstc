@@ -17,8 +17,8 @@ mul
 imul
 and so on
 
-asm -- collect
-core::asm.collect collects variables into registers, and then passes to a syscall, its a short way to write long syscalls
+asm -- syscall
+core::asm.syscall collects variables into registers, and then passes to a syscall, its a short way to write long syscalls
 syntax:
-core::asm.collect(SYSCALL, args...)
+core::asm.syscall(SYSCALL, args...)
 it also works in raw asm blocks

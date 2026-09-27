@@ -38,6 +38,6 @@ namespace lstc {
         };
 
         part_segs path_dissect(std::string path); // back bone of lstc file manager path expansions
-        path_expanded path_expand(std::string path, std::optional<std::unordered_map<std::string, std::string>> MAPENV);
+        path_expanded path_expand(std::string path);
         void print_partSegs(part_segs& rd);
 }}

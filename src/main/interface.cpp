@@ -63,28 +63,17 @@ namespace lstc::FileManag {
         r.obj[r.obj.size()-1].content = tmp;
         return r;
     }
-    // unsafe! anyone passing integers, strings, sets, his own relationship history (aka 1, in kindergarden but then never again), instead of null, nullptr, or unordered map
-    // will be executed at sunrise
-    path_expanded path_expand(std::string path, std::optional<std::unordered_map<std::string, std::string>> MAPENV) {
+    path_expanded path_expand(std::string path) {
         path_expanded rq;
-        auto MAP = MAPENV.value();
         auto evarNeed = 1;
         auto res = path_dissect(path); // problem is here
         std::string home;
         std::string constructed;
         std::string tmp;
         char* temp;
-        auto _env_op = [&evarNeed, &MAP, &MAPENV, &rq, &temp, &constructed](part_unit* r) {
+        auto _env_op = [&evarNeed, &rq, &temp, &constructed](part_unit* r) {
             if (!evarNeed) return 0;
             int set = 0;
-            if (MAPENV.has_value()) {
-                auto e = MAP.find(r->content);
-                if (e != MAP.end()) {
-                    constructed += e->second;
-                    set = 1;
-                    return 1;
-                }
-            }
             if (!set) {
                 temp = std::getenv(r->content.c_str());
                 if (temp == NULL) {
@@ -137,21 +126,13 @@ namespace lstc::FileManag {
                     break;
                 case EVAR:
                     std::cerr << "EVAR\n";
-                    if (MAPENV.has_value()) {
-                        e = MAP.find(res.obj[i].content);
-                        if (e == MAP.end()) {
-                            std::cerr << "Could not find var " << res.obj[i].content << " in map!\n";
-                            temp = std::getenv(res.obj[i].content.c_str());
-                            if (!temp) {
-                                std::cerr << "[ lstc ] Wrong env var : [\"" << res.obj[i].content << "\"]! [CRIT] \n";
-                                rq.err = -1;
-                                return rq;
-                            }
-                            constructed += temp;
-                        } else {
-                            constructed += e->second;
-                        }
+                    temp = std::getenv(res.obj[i].content.c_str());
+                    if (!temp) {
+                        std::cerr << "[ lstc ] Wrong env var : [\"" << res.obj[i].content << "\"]! [CRIT] \n";
+                        rq.err = -1;
+                        return rq;
                     }
+                    constructed += temp;
                     break;
                 case SEPR:
                     constructed += __lstc_fileManag_sepr;

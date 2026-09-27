@@ -1,0 +1,9 @@
+/docs/structures
+
+to define an opaque type/structure, use
+
+
+define X Y
+
+where X is name, and Y the type, if you use opaque as Y, it creates a type with size 0
+(just like none, basically named none)

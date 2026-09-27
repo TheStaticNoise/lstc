@@ -1,0 +1,30 @@
+/docs/generics
+
+
+Generics - traits that types can carry, for example
+volatile<type>
+const<type>
+A generic is considered a type, so you can do this:
+const<volatile<type>>
+with progress, there will be more generics.
+
+structure generics
+
+define packed<struct> {
+    /-/ blah blah blah
+};
+
+define smartpad<struct> {
+    /-/ blah blah blah remake
+};
+
+packed:
+no padding
+smartpad:
+minimal padding (resolved by the compiler, reorders the variables)
+
+generics are objects which change behavior of compilation or can understand metadata, there are 3 types of generics,
+
+Full generic (Logic + metadata)
+logic generic (only logic, like a inline function but called thru ```name;``` not ```name();```, has no arguments, can interact with variables arround if allowed)
+meta generic (for example can change from int to f64 and so on)
