@@ -1,2 +1,2 @@
 make:
-	g++ arch.cpp -o lstc
+	g++ arch.cpp -std=c++23 -o lstc

@@ -1,0 +1,7 @@
+#entry main
+
+fn main() -> none {
+  let: str message = "Hello, world!";
+  core::asm.syscall(1, 1, str, 13);
+  core::asm.syscall(60, 0);
+}

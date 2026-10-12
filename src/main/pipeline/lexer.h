@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <array>
 #include <cstring>
@@ -30,7 +31,7 @@ namespace lstc::lexer {
     // bool values
     VALUE_TRUE, VALUE_FALSE, 
     // braces 
-    ROUND_LEFT, ROUND_RIGHT, SQUARE_LEFT, SQUARE_RIGHT, ANGLE_LEFT, ANGLE_RIGHT, NEWLINE, /* this token will be ignored, used ONLY for error prints */
+    ROUND_LEFT, ROUND_RIGHT, SQUARE_LEFT, SQUARE_RIGHT, ANGLE_LEFT, ANGLE_RIGHT,
     // specials
     INCLUDE,
     // token end
@@ -89,7 +90,6 @@ namespace lstc::lexer {
     {token_value::SQUARE_RIGHT, "]"},
     {token_value::ANGLE_LEFT, "<"},
     {token_value::ANGLE_RIGHT, ">"},
-    {token_value::NEWLINE, "\\n"},
     {token_value::INCLUDE, "#include"}
   };
   std::unordered_map<std::string, token_value> vocab = {
@@ -115,8 +115,9 @@ namespace lstc::lexer {
   }; 
 
   struct identity {
-    enum {identity_identifier, identity_literal_int, identity_literal_str, identity_literal_float} kind;
+    enum {identity_identifier, identity_literal_int, identity_literal_str, identity_literal_float, identity_quoteinfo} kind;
     std::variant<std::string, uint64_t, double> data; 
+    uint64_t size = 0; // only for identity_quoteinfo
   };
   struct file_data {
     std::vector<token_value> tokens;
@@ -144,6 +145,11 @@ namespace lstc::lexer {
       file_data& get_file(uint64_t id) {
         return work_info.files.at(id);
       }
+
+      identity& get_identity(uint64_t id) {
+        return work_info.iden.at(id);
+      }
+
       std::optional<uint64_t> find_file(const std::string_view name) {
         auto e = work_info.file_map.find(std::string(name));
         if (e == work_info.file_map.end())
@@ -154,7 +160,7 @@ namespace lstc::lexer {
         return id < work_info.files.size();
       }
       std::optional<uint64_t> lex_string(std::string_view source, std::string_view name, std::optional<std::string_view> path) {
-        enum class types {NONE, CHAR, NUM, SPECIAL, SPACE, NEWLINE, DQUOTE, QUOTE};
+        enum class types {NONE, CHAR, NUM, SPECIAL, SPACE, NEWLINE, DQUOTE, QUOTE, DOT};
         static constexpr auto lut_init = [] {
           std::array<types, 256> t{};
           for (uint64_t i = 0; i < 256; i++) {
@@ -183,20 +189,21 @@ namespace lstc::lexer {
           return lut_init[static_cast<uint8_t>(i)];
         };
 
-        auto bit = [](types t) {
+        auto bit = [](types t) -> uint32_t{
           return (1 << static_cast<uint8_t>(t));
         };
         // none char num spec space newline dquote quote 
         static constexpr auto morpht = [&] {
-          std::array<uint8_t, 8> e = {
+          std::array<uint32_t, 9> e = {
             0,
             bit(types::CHAR) | bit(types::NUM), // char
-            bit(types::NUM) | bit(types::CHAR), // num
+            bit(types::NUM) | bit(types::CHAR) | bit(types::DOT), // num
             bit(types::SPECIAL), // spec
             0, // space
             0, // newline
             0xFF ^ bit(types::NEWLINE),
-            0xFF ^ bit(types::NEWLINE)
+            0xFF ^ bit(types::NEWLINE),
+            bit(types::SPECIAL) | bit(types::DOT)
           };
           return e;
         }();
@@ -211,13 +218,18 @@ namespace lstc::lexer {
         std::string collector;
         uint64_t gfl = 0; // global fault lock, if != 0 then = lexer fault 
 
-        auto dump_litDQ = [&]() {
+        uint8_t escape_lifetime=0;
+        uint64_t i = 0;
+        const auto fid = new_file(name, path);
+        auto& file = work_info.files[fid];
+          auto dump_litDQ = [&]() {
           work_info.iden.push_back({identity::identity_literal_str, collector});
           collector.clear();
+          file.tokens.push_back(static_cast<token_value>(static_cast<uint64_t>(token_value::IDENTITY_BASE) + work_info.iden.size() - 1));
         };
         auto dump_litQ = [&]() {
           if (collector.size() <= 8) { // max allowed size
-            uint64_t ret;
+            uint64_t ret = 0;
             std::memcpy(&ret, collector.data(), collector.size());
             return ret;
           }
@@ -225,13 +237,10 @@ namespace lstc::lexer {
           return (uint64_t) 0;
         };
 
-        uint8_t escape_lifetime=0;
-        uint64_t i = 0;
-        const auto fid = new_file(name, path);
-        auto& file = work_info.files[fid];
-        auto max_munch = [&]() {
+
+        auto max_munch = [&]() -> bool {
+          if (collector.empty()) return true;
           auto end = vocab.end();
-          uint64_t rewound = 0;
 
           while (!collector.empty()) {
             auto e = vocab.find(collector);
@@ -241,27 +250,22 @@ namespace lstc::lexer {
 
               if (i == 0) {
                 gfl = 3;
-                std::cerr << "[lstc] lexer fault! i == 0 true on fallback attempt [CRIT]\n";
-                return;
+                return false;
               }
 
               i--;
-              rewound++;
               continue;
             }
 
             file.tokens.push_back(e->second);
             collector.clear();
-
-            if (rewound)
-              i--;
-
-            break;
+            return true;
           }
-        };
-        // 2 mode remaining: 
-        // directive // unobligatory 4 now
-        // int/float/hex/binary literal parsing (aka just literal)
+
+          return false;
+        };        // 2 mode remaining: 
+                  // directive // unobligatory 4 now
+                  // int/float/hex/binary literal parsing (aka just literal)
 
         auto res_lit = [&]() -> std::optional<uint64_t> {
           // here we go
@@ -371,6 +375,7 @@ namespace lstc::lexer {
           auto e = res_lit();
           if (!e.has_value()) return 0;
           file.tokens.push_back(static_cast<token_value>(static_cast<uint64_t>(token_value::IDENTITY_BASE) + e.value()));
+          collector.clear();
           return 1; 
         };
         auto insert_iden = [&]() {
@@ -392,24 +397,36 @@ namespace lstc::lexer {
           uint64_t val = static_cast<uint64_t>(token_value::IDENTITY_BASE)+static_cast<uint64_t>(work_info.iden.size() - 1); 
           file.tokens.push_back(static_cast<token_value>(val));
         };
-
+        bool mgc_dqstart = false;
         auto step_iterator = [&](char symbol) -> std::optional<int64_t> { // returns gfl (4fun)
           b = lookup(symbol);
           if (symbol == '\\') {escape=true; escape_lifetime=0;}
           if (escape_lifetime > 1) {escape=false; escape_lifetime=0;}
+          if (col == COL_MAX_CRUNCH) {}
           if (col == COL_DQUOTE) {
             // requires intervention, we start ALREADY from 1 past of the quote, so we can easily 
             if (b == types::DQUOTE && !escape) {
               dump_litDQ();
               a = types::NONE; // swap
+              col = COL_NONE;
               return std::nullopt;
             }
-            collector += symbol;
+            if (symbol == '"') {
+              return std::nullopt;
+            }
+              collector += symbol;
+            
+            return std::nullopt;
           }
           if (col == COL_QUOTE) {
             if (b == types::QUOTE && !escape) {
-              dump_litQ();
+              uint64_t d = dump_litQ();
               a = types::NONE;
+              col = COL_NONE;
+              uint64_t s = collector.size();
+              collector.clear();
+              work_info.iden.push_back({.kind = identity::identity_quoteinfo, .data = d, .size = s});
+              file.tokens.push_back(static_cast<token_value>(static_cast<uint64_t>(token_value::IDENTITY_BASE)+static_cast<uint64_t>(work_info.iden.size()-1)));
               return std::nullopt;
             }
             collector += symbol;
@@ -426,6 +443,7 @@ namespace lstc::lexer {
               }
               switch (b) {
                 case (types::SPECIAL):
+
                   col = COL_MAX_CRUNCH;
                   break;
                 case (types::CHAR):
@@ -436,9 +454,11 @@ namespace lstc::lexer {
                   break;
                 case (types::DQUOTE):
                   col = COL_DQUOTE;
+                  return std::nullopt;
                   break;
                 case (types::QUOTE):
                   col = COL_QUOTE;
+                  return std::nullopt;
                   break;
                 default: 
                   col = COL_NONE;
@@ -451,11 +471,17 @@ namespace lstc::lexer {
             //
 
             if (!collector.empty()) {
+              bool res;
               switch (col) {
                 case COL_MAX_CRUNCH:
-                  max_munch();
+                  res = max_munch();
+                  col = COL_NONE;
+                  if (!res) max_munch();
+                  collector.clear();
+                  a = types::NONE;
+                  i--;
+                  return std::nullopt;
                   break;
-
                 case (COL_ALPHANUM):
                   insert_iden();
                   col = COL_NONE;
@@ -495,25 +521,54 @@ namespace lstc::lexer {
           if (gfl) return gfl;
           i++;
         }
+
         if (!collector.empty()) {
-          switch (col) {
-            case COL_MAX_CRUNCH:
-              max_munch();
-              break;
+          while (!collector.empty()) {
+            switch (col) {
+              case COL_MAX_CRUNCH: {
+                max_munch();
 
-            case COL_ALPHANUM:
-              insert_iden();
-              break;
+                if (gfl)
+                  return gfl;
 
-            case COL_LITERAL:
-              if (!reg_lit())
-                return gfl;
-              break;
+                col = COL_NONE;
+                collector.clear();
+                a = types::NONE;
 
-            default:
-              break;
+                while (i < source.size()) {
+                  step_iterator(source[i]);
+
+                  if (gfl)
+                    return gfl;
+
+                  i++;
+                }
+
+                break;
+              }
+
+              case COL_ALPHANUM:
+                insert_iden();
+                col = COL_NONE;
+                collector.clear();
+                a = types::NONE;
+                break;
+
+              case COL_LITERAL:
+                if (!reg_lit())
+                  return gfl;
+
+                col = COL_NONE;
+                a = types::NONE;
+                break;
+
+              default:
+                collector.clear();
+                break;
+            }
           }
         }
+
         file.parsed = true;
         return std::nullopt;
       }

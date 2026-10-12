@@ -1,3 +1,6 @@
-fn -> int xd(lstc: int) {
-    core::io.print();
+#entry main
+#include "foo/bar"
+
+fn main() -> none {
+  core::asm.syscall(60, 0);
 }
